@@ -9,6 +9,6 @@
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                  [clj-yaml "0.4.0"]
                  [javax.mail/mail "1.4.3"]]
-  :main ^:skip-aot pismo.core
+  :main  pismo.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
