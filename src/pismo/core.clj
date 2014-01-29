@@ -18,10 +18,10 @@
     (format "From: %s\n Subject: %s" from (.getSubject msg))))
 
 (defn new-email-notify [p]
-  (prn config)
-  (.start (Thread. (fn [] (sh (config :notifier-command) (config :notifier-args)))))
-  (let [email-info (read-message (.toString p))]
-    (sh "notify-send" "-t" "1500" "New mail!: " email-info)))
+  (when (.exists (clojure.java.io/file (.toString p)))
+    (.start (Thread. (fn [] (sh (config :notifier-command) (config :notifier-args)))))
+    (let [email-info (read-message (.toString p))]
+      (sh "notify-send" "-t" "1500" "New mail!: " email-info))))
 
 (defn mailmessage [p]
   (let [path (awizo/string->path p)]
