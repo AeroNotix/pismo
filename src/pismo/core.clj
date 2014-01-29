@@ -27,7 +27,7 @@
   (let [path (awizo/string->path p)]
     (fn [e]
       (let [filepath (.context e)]
-        (new-email-notify (.resolve path filepath))))))        
+        (new-email-notify (.resolve path filepath))))))
 
 (defn dir-seq [path]
   (let [dir-contents (file-seq (clojure.java.io/file path))
@@ -35,9 +35,7 @@
     (map (fn [d] (.getPath d)) dirs)))
 
 (defn is-maildir? [path]
-  (or (.contains path "cur")
-      (.contains path "tmp")
-      (.contains path "new")))
+  (.contains path "new"))
 
 (defn create-watcher [path]
   (awizo/attach-handler path (mailmessage path) [awizo/CREATE]))
