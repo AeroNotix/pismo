@@ -9,6 +9,14 @@
 
 
 (def config (yaml/parse-string (slurp "/etc/pismo.yaml")))
+(def seen (atom #{}))
+
+
+(defn seen? [p]
+  (contains? @seen p))
+
+(defn update-seen [p]
+  (swap! seen conj (.. p (getFileName) (toString))))
 
 (defn read-message [p]
   (let [content (slurp p)
@@ -18,6 +26,7 @@
     (format "From: %s\n Subject: %s" from (.getSubject msg))))
 
 (defn new-email-notify [p]
+  (update-seen p)
   (when (.exists (clojure.java.io/file (.toString p)))
     (.start (Thread. (fn [] (sh (config :notifier-command) (config :notifier-args)))))
     (let [email-info (read-message (.toString p))]
@@ -26,8 +35,13 @@
 (defn mailmessage [p]
   (let [path (awizo/string->path p)]
     (fn [e]
-      (let [filepath (.context e)]
-        (new-email-notify (.resolve path filepath))))))
+      (let [filepath (.context e)
+            fullpath (.resolve path filepath)]
+        (when-not (seen? fullpath)
+          (try
+            (new-email-notify fullpath)
+            (catch java.io.FileNotFoundException e
+              (prn e))))))))
 
 (defn dir-seq [path]
   (let [dir-contents (file-seq (clojure.java.io/file path))
