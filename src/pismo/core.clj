@@ -22,7 +22,7 @@
   (let [content (slurp p)
         bais    (java.io.ByteArrayInputStream. (.getBytes content))
         msg     (MimeMessage. (Session/getInstance (java.util.Properties.)) bais)
-        from    (.toString (first (.getFrom msg)))]    
+        from    (.toString (first (.getFrom msg)))]
     (format "From: %s\n Subject: %s" from (.getSubject msg))))
 
 (defn new-email-notify [p]
