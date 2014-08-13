@@ -1,7 +1,9 @@
 (ns pismo.core
-  (:require [clj-yaml.core :as yaml]
-            [awizo.core :as awizo]
-            [clojure.core.async :as async])
+  (:require [awizo.core :as awizo]
+            [cider.nrepl :refer [cider-nrepl-handler]]
+            [clj-yaml.core :as yaml]
+            [clojure.core.async :as async]
+            [clojure.tools.nrepl.server :as nrepl-server])
   (:use [clojure.java.shell :only [sh]])
   (:import [javax.mail.internet MimeMessage])
   (:import [javax.mail Session])
@@ -63,4 +65,7 @@
           (create-watcher path))))))
 
 (defn -main [& args]
+  (nrepl-server/start-server
+    :port 7888 :handler
+    cider-nrepl-handler)
   (create-watchers config))
