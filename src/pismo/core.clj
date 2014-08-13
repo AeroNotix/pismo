@@ -22,7 +22,7 @@
 (def threshold #(- (now) a-minute))
 
 (defn parse-filename-for-date [p]
-  (Integer. (first (clojure.string/split p #"_" 2))))
+  (Integer. (first (clojure.string/split p #"_"))))
 
 (defn outside-threshold? [p]
   (> (- (threshold) (parse-filename-for-date p)) a-minute))
