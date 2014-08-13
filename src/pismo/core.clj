@@ -28,25 +28,24 @@
 (defn new-email-notify [p]
   (update-seen p)
   (when (.exists (clojure.java.io/file (.toString p)))
-    (.start (Thread. (fn [] (sh (config :notifier-command) (config :notifier-args)))))
+    (.start (Thread. #(sh (config :notifier-command) (config :notifier-args))))
     (let [email-info (read-message (.toString p))]
       (sh "notify-send" "-t" "1500" "New mail!: " email-info))))
 
 (defn mailmessage [p]
   (let [path (awizo/string->path p)]
-    (fn [e]
-      (let [filepath (.context e)
-            fullpath (.resolve path filepath)]
-        (when-not (seen? fullpath)
-          (try
-            (new-email-notify fullpath)
-            (catch java.io.FileNotFoundException e
-              (prn e))))))))
+    #(let [filepath (.context %)
+           fullpath (.resolve path filepath)]
+       (when-not (seen? fullpath)
+         (try
+           (new-email-notify fullpath)
+           (catch java.io.FileNotFoundException error
+             (prn error)))))))
 
 (defn dir-seq [path]
   (let [dir-contents (file-seq (clojure.java.io/file path))
-        dirs (filter (fn [p] (.isDirectory p)) dir-contents)]
-    (map (fn [d] (.getPath d)) dirs)))
+        dirs (filter #(.isDirectory %) dir-contents)]
+    (map #(.getPath %) dirs)))
 
 (defn is-maildir? [path]
   (.contains path "new"))
