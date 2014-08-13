@@ -54,13 +54,13 @@
   (awizo/attach-handler path (mailmessage path) [awizo/CREATE]))
 
 (defn create-watchers [config]
-  (flatten
-   (doall
-    (for [path (config :paths)]
-      (if (config :recursive)
-        (let [paths (filter is-maildir? (dir-seq path))]
-          (doall (map create-watcher paths)))
-        (create-watcher path))))))
+  (doall
+    (flatten
+      (for [path (config :paths)]
+        (if (config :recursive)
+          (let [paths (filter is-maildir? (dir-seq path))]
+            (map create-watcher paths))
+          (create-watcher path))))))
 
 (defn -main [& args]
   (create-watchers config))
