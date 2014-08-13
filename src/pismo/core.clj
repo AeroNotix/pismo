@@ -19,13 +19,13 @@
 
 (def now #(int (/ (System/currentTimeMillis) 1000.0)))
 
-(def threshold #(- (now) a-minute))
+(def a-minute-ago #(- (now) a-minute))
 
 (defn parse-filename-for-date [p]
   (Integer. (first (clojure.string/split p #"_"))))
 
 (defn outside-threshold? [p]
-  (> (- (threshold) (parse-filename-for-date p)) a-minute))
+  (> (- (a-minute-ago) (parse-filename-for-date p)) a-minute))
 
 (defn update-seen [p]
   (swap! seen
