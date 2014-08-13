@@ -12,13 +12,24 @@
 
 (def config (yaml/parse-string (slurp "/etc/pismo.yaml")))
 (def seen (atom #{}))
-
+(def a-minute 60)
 
 (defn seen? [p]
   (contains? @seen p))
 
+(def now #(int (/ (System/currentTimeMillis) 1000.0)))
+
+(def threshold #(- (now) a-minute))
+
+(defn parse-filename-for-date [p]
+  (Integer. (first (clojure.string/split p #"_" 2))))
+
+(defn outside-threshold? [p]
+  (> (- (threshold) (parse-filename-for-date p)) a-minute))
+
 (defn update-seen [p]
-  (swap! seen conj (.. p (getFileName) (toString))))
+  (swap! seen
+    #(conj (set (remove outside-threshold? %)) (.. p (getFileName) (toString)))))
 
 (defn read-message [p]
   (let [content (slurp p)
