@@ -1,9 +1,7 @@
 (ns pismo.core
   (:require [awizo.core :as awizo]
-            [cider.nrepl :refer [cider-nrepl-handler]]
             [clj-yaml.core :as yaml]
-            [clojure.core.async :as async]
-            [clojure.tools.nrepl.server :as nrepl-server])
+            [clojure.core.async :as async])
   (:use [clojure.java.shell :only [sh]])
   (:import [javax.mail.internet MimeMessage])
   (:import [javax.mail Session])
@@ -12,14 +10,12 @@
 
 (def config (yaml/parse-string (slurp "/etc/pismo.yaml")))
 (def seen (atom #{}))
+(def now #(int (/ (System/currentTimeMillis) 1000.0)))
 (def a-minute 60)
+(def a-minute-ago #(- (now) a-minute))
 
 (defn seen? [p]
   (contains? @seen p))
-
-(def now #(int (/ (System/currentTimeMillis) 1000.0)))
-
-(def a-minute-ago #(- (now) a-minute))
 
 (defn parse-filename-for-date [p]
   (Integer. (first (clojure.string/split p #"_"))))
@@ -76,7 +72,4 @@
           (create-watcher path))))))
 
 (defn -main [& args]
-  (nrepl-server/start-server
-    :port 7888 :handler
-    cider-nrepl-handler)
   (create-watchers config))
