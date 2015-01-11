@@ -1,7 +1,6 @@
 (ns pismo.core
   (:require [awizo.core :as awizo]
-            [clj-yaml.core :as yaml]
-            [clojure.core.async :as async])
+            [clj-yaml.core :as yaml])
   (:use [clojure.java.shell :only [sh]])
   (:import [javax.mail.internet MimeMessage])
   (:import [javax.mail Session])
