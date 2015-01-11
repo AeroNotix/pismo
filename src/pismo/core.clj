@@ -4,6 +4,9 @@
   (:use [clojure.java.shell :only [sh]])
   (:import [javax.mail.internet MimeMessage])
   (:import [javax.mail Session])
+  (:import [org.gnome.gtk Gtk])
+  (:import [org.gnome.notify Notify])
+  (:import [org.gnome.notify Notification])
   (:gen-class))
 
 
@@ -12,6 +15,10 @@
 (def now #(int (/ (System/currentTimeMillis) 1000.0)))
 (def a-minute 60)
 (def a-minute-ago #(- (now) a-minute))
+
+
+(defn show-message [title content]
+  (.show (Notification. title content "dialog-information")))
 
 (defn seen? [p]
   (contains? @seen p))
@@ -37,8 +44,11 @@
   (update-seen p)
   (when (.exists (clojure.java.io/file (.toString p)))
     (.start (Thread. #(sh (config :notifier-command) (config :notifier-args))))
-    (let [email-info (read-message (.toString p))]
-      (sh "notify-send" "-t" "1500" "New mail!: " email-info))))
+    (try
+      (let [email-info (read-message (.toString p))]
+        (show-message "New mail!: " email-info))
+      (catch Exception e
+        (show-message "Exception: " (str e))))))
 
 (defn mailmessage [p]
   (let [path (awizo/string->path p)]
@@ -71,4 +81,7 @@
           (create-watcher path))))))
 
 (defn -main [& args]
+  (Gtk/init args)
+  (Notify/init "pismo")
+  (.show (Notification. "Pismo" "Pismo is starting!" "dialog-information"))
   (create-watchers config))
